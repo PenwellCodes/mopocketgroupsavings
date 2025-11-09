@@ -26,7 +26,7 @@ if (!admin.apps.length) {
       console.warn("⚠️  Firebase Admin SDK not initialized — missing credentials");
     }
   } catch (error) {
-    console.error("❌ Error initializing Firebase Admin SDK:", error.message);
+    console.error("Error initializing Firebase Admin SDK:", error.message);
     if (error.code === 'ENOENT') {
       console.error(`   File not found: ${error.path || process.env.GOOGLE_APPLICATION_CREDENTIALS}`);
       console.error("   Make sure the file path in GOOGLE_APPLICATION_CREDENTIALS is correct.");
