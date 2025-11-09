@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Initialize Firebase Admin SDK
+require("./config/firebase-admin");
+
 // Collection routes
 const accessToken = require("./routes/collection-routes/collectiontokengeneration");
 const requestToPayRoutes = require("./routes/collection-routes/requesttopay.js");

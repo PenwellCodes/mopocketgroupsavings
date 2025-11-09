@@ -1,32 +1,68 @@
-const jwt = require("jsonwebtoken");
+const admin = require("../config/firebase-admin");
+const User = require("../models/User");
 
-const verifyToken = (token, secretKey) => {
-  return jwt.verify(token, secretKey);
-};
-
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  console.log(authHeader, "authHeader");
-
-  if (!authHeader) {
-    return res.status(401).json({
-      success: false,
-      message: "User is not authenticated",
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
+const authenticate = async (req, res, next) => {
   try {
-    const payload = verifyToken(token, process.env.JWT_SECRET); // ✅ Use the actual secret
+    const authHeader = req.headers.authorization;
 
-    req.user = payload;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "User is not authenticated",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Token not provided",
+      });
+    }
+
+    // Verify Firebase ID token
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(token);
+    } catch (error) {
+      console.error("Token verification error:", error);
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token",
+        error: error.message,
+      });
+    }
+
+    const firebaseUID = decodedToken.uid;
+
+    // Find user in MongoDB by Firebase UID
+    const user = await User.findOne({ firebaseUID });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found in database",
+      });
+    }
+
+    // Attach user data to request object (maintain same interface as before)
+    req.user = {
+      _id: user._id,
+      userName: user.userName,
+      userEmail: user.userEmail,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      firebaseUID: user.firebaseUID,
+    };
 
     next();
-  } catch (e) {
-    return res.status(401).json({
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(500).json({
       success: false,
-      message: "Invalid token",
+      message: "Authentication failed",
+      error: error.message,
     });
   }
 };
