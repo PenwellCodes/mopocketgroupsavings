@@ -110,7 +110,7 @@ router.post("/withdraw", authenticateMiddleware, async (req, res) => {
       if (deposit.phoneNumber !== formattedPhone) {
         return res.status(403).json({
           success: false,
-          message: `Phone number does not match the depositor's number for deposit ${deposit._id}`
+          message: `Phone number does not match the depositor's number for deposit `
         });
       }
     }
