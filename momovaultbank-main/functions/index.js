@@ -40,7 +40,7 @@ const MONGO_URI = process.env.MONGO_URI;
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // ✅ your Vite/React frontend
+    origin: "https://mopocket.pages.dev", // ✅ your Vite/React frontend
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
